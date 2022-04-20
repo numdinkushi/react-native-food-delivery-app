@@ -7,7 +7,7 @@ import {
     TextInput,
     FlatList
 } from 'react-native';
-import { HorizontalFoodCard } from '../../Components';
+import { HorizontalFoodCard, VerticalFoodCard } from '../../Components';
 import {FONTS, SIZES, COLORS, icons, dummyData} from "../../constants"
 
 const Home = () =>{
@@ -51,15 +51,18 @@ const Home = () =>{
     //handler
     function handleChangeCategory(categoryId, menuTypeId){
         // retrieve the popular menu
-        let selectedPopular = dummyData.menu.find(a => a.name == "recommended")
+        let selectedPopular = dummyData.menu.find(a => a.name == "Popular")
 
         //retrieve the recommended menu
-        let selectedRecommend = dummyData.menu.find(a => a.name === "Recommended")
+        let selectedRecommend = dummyData.menu.find(a => a.name == "Recommended")
             //find menu based on menu type id
+            let selectedMenu = dummyData.menu.find(a=> a.id == menuTypeId)
+
+            //set the popular menu based on the categoryId
+            setPopular(selectedPopular?.list.filter(a => a.categories.includes(categoryId)))
 
             // set the recommended menu based on categoryId
             setRecommends(selectedRecommend?.list.filter(a=> a.categories.includes(categoryId)))
-            let selectedMenu = dummyData.menu.find(a=> a.id == menuTypeId)
             // set the menu based on category id  
             setMenuList(selectedMenu?.list.filter(a => a.categories.includes(categoryId)))
     }
@@ -161,13 +164,14 @@ function renderRecomendedSection(){
                 keyExtractor={item =>  `${item.id}`}
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                renderItem={({item, index})=>{
+                renderItem={({item, index})=>(
                     <HorizontalFoodCard 
                     containerStyle={{
                         height:180,
                         width:SIZES.width*0.85,
-                        marginLeft:index == 0? SIZES.padding : 0,
-                        padingRight: SIZES.radius   ,
+                        marginLeft:index == 0? SIZES.padding : 18,
+                        marginRight:index== recommends.length - 1? SIZES.padding : 0,
+                        padingRight: SIZES.radius,
                         alignItems:"center"
                     }}
                     imageStyle={{
@@ -178,7 +182,7 @@ function renderRecomendedSection(){
                     item={item}
                     onpress={()=>console.log("HorizontalFoodCard")}
                      />
-                }}
+    )}
             />
         </Section>
     )
@@ -190,7 +194,22 @@ function renderPopularSection(){
         title="Popular Near you"
         onPress={()=> console.log("show all popular items ")}
         >
-
+            <FlatList 
+                data={popular}
+                keyExtractor={item => `${item.id}`}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                renderItem={({item, index})=>(
+                    <VerticalFoodCard
+                        containerStyle={{
+                            marginLeft:index ==0 ? SIZES.padding:18,
+                            marginRight: index == popular.length - 1? SIZES.padding : 0
+                        }}
+                        item={item}
+                        onPress={()=> console.log("vertical food card")}
+                    />
+                     )}
+            />
         </Section>
     )
 }
