@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { HorizontalFoodCard, VerticalFoodCard } from '../../Components';
 import {FONTS, SIZES, COLORS, icons, dummyData} from "../../constants"
+import FilterModal from './FilterModal';
 
 const Home = () =>{
     const Section = ({title, onPress, children}) =>{
@@ -42,6 +43,7 @@ const Home = () =>{
     const [selectedCategoryId, setSelectedCategoryId] = useState(1)
     const [selectedMenuType, setSelectedMenuType] = useState(1)
     const [menuList, setMenuList] = useState([])
+    const [showFilterModal, setShowFilterModal] = useState(false)
     const [recommends, setRecommends] = useState([])
     const [popular, setPopular]  = useState([])
     useEffect(()=>{
@@ -101,7 +103,7 @@ function renderSearch (){
           
             {/* filter Button */}
             <TouchableOpacity 
-            // onPress
+            onPress= {()=> setShowFilterModal(true)}
             >
                 <Image 
                 source={icons.filter}
@@ -213,6 +215,101 @@ function renderPopularSection(){
         </Section>
     )
 }
+
+function renderFoodCateogries(){
+    return (
+        <FlatList
+            data={dummyData.categories}
+            keyExtractor={item => `${item.id}`}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            renderItem={({item, index})=> (
+                <TouchableOpacity 
+                style={{
+                    flexDirection:"row",
+                    height:55,
+                    marginTop:SIZES.padding,
+                    marginLeft: index ==0 ? SIZES.padding : SIZES.radius,
+                    marginRight: index == dummyData.categories.length -1 ? SIZES.padding : 0,
+                    paddingHorizontal:8,
+                    borderRadius:SIZES.radius,
+                    backgroundColor:selectedCategoryId == item.id ? COLORS.primary : COLORS.lightGray2
+                }}
+                onPress={()=> {setSelectedCategoryId(item.id )
+                            handleChangeCategory(item.id, selectedMenuType)}
+                }
+                >
+                    <Image
+                        source={item.icon}
+                        style={{
+                            marginTop:5,
+                            height:50,
+                            width:50,
+                        }}
+                    />
+                    <Text 
+                        style={{
+                            alignSelf:"center",
+                            marginRight:SIZES.base,
+                            color: selectedCategoryId == item.id? COLORS.white : COLORS.darkGray,
+                            ...FONTS.h3,
+                        }}
+                    >
+                        {item.name}
+                    </Text>
+                </TouchableOpacity>
+            )}
+        >
+
+        </FlatList>
+    )
+}
+function renderDeliveryTo(){
+    return (
+        <View
+            style={{
+                marginTop:SIZES.padding,
+                marginHorizontal:SIZES.padding,
+
+            }}
+        >
+            <Text 
+            style={{
+                color:COLORS.primary,
+                ...FONTS.body3,
+            }}
+            >
+                DELIVERY TO 
+            </Text>
+            <TouchableOpacity 
+                style={{
+                    flexDirection:"row",
+                    marginTop:SIZES.base,
+                    alignItems:"center",
+
+                }}
+            >
+                <Text
+                    style={{
+                     ...FONTS.h3   
+                    }}
+                >   
+                    {dummyData.myProfile.address}
+                </Text>
+                    <Image
+                        source={icons.down_arrow}
+                        style={{
+                            marginLeft:SIZES.radius,
+                            height: 20,
+                            width: 20,
+                            padding:SIZES.radius
+                        }}
+                    />
+            </TouchableOpacity>
+        </View>
+    )
+
+}
 return (
     <View
     style={{
@@ -221,6 +318,15 @@ return (
     >
         {/* Search */}
         {renderSearch()}
+
+        {/* filter */}
+        {showFilterModal && 
+        <FilterModal
+            isVisible={showFilterModal}
+            onClose={()=> setShowFilterModal(false)}
+        />
+        }
+
         {/* List */}
         <FlatList 
             data={menuList}
@@ -228,6 +334,10 @@ return (
             showsVerticalScrollIndicator={false}
             ListHeaderComponent={
                 <View>
+                    {/* Delivery to  */}
+                    {renderDeliveryTo()}
+                    {/* Food Categories */}
+                    {renderFoodCateogries()}
                     {/* popular */}
                     {renderPopularSection()}
                     {/* Recommended menuType */}
@@ -255,6 +365,12 @@ return (
                  />
                 )
             }}
+            ListFooterComponent={
+                <View 
+                style={{height:200}}
+                />
+              
+            }
         />
 
     </View>
